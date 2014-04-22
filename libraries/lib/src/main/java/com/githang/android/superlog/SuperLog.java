@@ -2,6 +2,7 @@ package com.githang.android.superlog;/**
  * Created by msdx on 2014/4/21.
  */
 
+import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -64,6 +65,16 @@ public final class SuperLog {
 
     static {
         config = new LogConfig();
+    }
+
+    public static void sendLog(Context context) throws Exception {
+        if(!config.isSendEmail) {
+            return;
+        }
+        if(config.mailSubject == null) {
+            config.mailSubject = "IRAINS LOG " + context.getApplicationInfo().name;
+        }
+        LogSendUtil.send();
     }
 
     /**
@@ -242,36 +253,6 @@ public final class SuperLog {
             LogFileUtil.writeLog(LogFileUtil.ERROR, LOG_TAG, msg, tr);
         }
         return Log.e(LOG_TAG, msg, tr);
-    }
-
-    /**
-     * What a Terrible Failure: Report a condition that should never happen.
-     * The error will always be logged at level ASSERT with the call stack.
-     * Depending on system configuration, a report may be added to the
-     * {@link android.os.DropBoxManager} and/or the process may be terminated
-     * immediately with an error dialog.
-     * @param msg The message you would like logged.
-     */
-    public int wtf( String msg) {
-        return Log.wtf(LOG_TAG, msg);
-    }
-
-    /**
-     * What a Terrible Failure: Report an exception that should never happen.
-     * @param tr An exception to log.
-     */
-    public int wtf( Throwable tr) {
-        return Log.wtf(LOG_TAG, tr);
-    }
-
-    /**
-     * What a Terrible Failure: Report an exception that should never happen.
-     * Similar to {@link #wtf(String, Throwable)}, with a message as well.
-     * @param msg The message you would like logged.
-     * @param tr An exception to log.  May be null.
-     */
-    public int wtf( String msg, Throwable tr) {
-        return Log.wtf(LOG_TAG, msg, tr);
     }
 
     /**
