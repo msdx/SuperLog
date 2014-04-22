@@ -30,6 +30,7 @@ public class LogSendUtil {
             sender.addAttachment(log.getPath(), log.getName());
         }
         sender.send();
+        afterSend(sendDir);
     }
 
     private static File sendReady() {
@@ -51,7 +52,7 @@ public class LogSendUtil {
             for (File logFile : logs) {
                 Log.d("LogSend", logFile.getName());
                 if(logFile.getCanonicalFile().equals(currentLog)) {
-//                    continue;
+                    continue;
                 }
                 logFile.renameTo(new File(sendDir, logFile.getName()));
             }
@@ -59,6 +60,19 @@ public class LogSendUtil {
             e.printStackTrace();
         }
         return sendDir;
+    }
 
+    private static void afterSend(File sendDir) {
+        File sendOutDir = new File(SuperLog.config.logPath, "sended");
+        if(!sendOutDir.exists()) {
+            sendOutDir.mkdirs();
+        }
+        File[] logs = sendDir.listFiles();
+        for (File logFile: logs) {
+            logFile.renameTo(new File(sendOutDir, logFile.getName()));
+        }
+        if(SuperLog.config.deleteFileAfterSend) {
+            sendDir.deleteOnExit();
+        }
     }
 }
