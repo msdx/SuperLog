@@ -16,13 +16,29 @@ public class LogConfig {
      */
     public String receiveEmail;
     /**
-     * E-mail address to send Log.
+     * E-mail address who send the log.
      */
     public String sendEmail;
+    /**
+     * E-mail user
+     */
+    public String sendEmailUser;
     /**
      * E-mail password to send Log.
      */
     public String sendEmailPassword;
+    /**
+     * E-mail port to login.
+     */
+    public String sendEmailPort = "25";
+    /**
+     * E-mail host to send.
+     */
+    public String sendEmailHost;
+    /**
+     * Mail subject.
+     */
+    public String mailSubject;
     /**
      * Directory path.
      */

@@ -112,13 +112,13 @@ public class LogFileUtil {
      * 返回一个日志文件路径。
      *     * @return
      */
-    private static File getLogFile() {
+    static File getLogFile() {
         File logDir = new File(SuperLog.config.logPath);
         if (!logDir.exists()) {
             logDir.mkdirs();
         }
 
-        File logFile = new File(logDir, logFileFormat.format(Calendar.getInstance().getTime()) + ".log");
+        File logFile = new File(logDir, "super-" + logFileFormat.format(Calendar.getInstance().getTime()) + ".log");
         if (!logFile.exists()) {
             synchronized (lock) {
                 if (!logDir.exists()) {
