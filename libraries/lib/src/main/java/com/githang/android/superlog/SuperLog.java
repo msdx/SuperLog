@@ -14,7 +14,18 @@ import java.io.File;
  * FIXME
  */
 public final class SuperLog {
-    private static final String LOG_TAG = SuperLog.class.getSimpleName();
+    private static final SuperLog localLog = getLog(SuperLog.class);
+
+    private final String LOG_TAG;
+
+
+    private SuperLog(Class<?> cls) {
+        LOG_TAG = cls.getSimpleName();
+    }
+
+    public static final SuperLog getLog(Class<?> cls) {
+        return new SuperLog(cls);
+    }
 
     /**
      * Priority constant for the println method; use Log.v.
@@ -46,9 +57,21 @@ public final class SuperLog {
      */
     public static final int ASSERT = Log.ASSERT;
 
-    private static LogConfig config;
+    /**
+     * LOG的配置。
+     */
+    protected static LogConfig config;
 
+    static {
+        config = new LogConfig();
+    }
+
+    /**
+     * 设置配置。
+     * @param logConfig
+     */
     public static void setConfig(LogConfig logConfig) {
+        config = logConfig;
         if(logConfig.isSaveLog) {
             if (TextUtils.isEmpty(logConfig.logPath)) {
                 throw new IllegalArgumentException("isSaveLog is true, but logPath is null");
@@ -58,7 +81,9 @@ public final class SuperLog {
                 throw new IllegalArgumentException("the logPath is need to set as path, but it's a file");
             }
             if(!path.canWrite()) {
-                Log.e(LOG_TAG, "the log path is not writable");
+                localLog.e( "the log path is not writable");
+            } else {
+
             }
         }
         if(logConfig.isSendEmail &&
@@ -67,91 +92,99 @@ public final class SuperLog {
                         TextUtils.isEmpty(logConfig.receiveEmail))) {
             throw new IllegalArgumentException("the isSendEmail is true, but send mail or send mail password, receive email is null");
         }
-        config = logConfig;
     }
+
 
     /**
      * Send a {@link #VERBOSE} log message.
-     * @param tag Used to identify the source of a log message.  It usually identifies
-     *        the class or activity where the log call occurs.
      * @param msg The message you would like logged.
      */
-    public static int v(String tag, String msg) {
-        return Log.v(tag, msg);
+    public int v( String msg) {
+        if(config.isSaveLog && config.saveLevel <= VERBOSE) {
+            LogFileUtil.writeLog(LogFileUtil.VERBOSE, LOG_TAG, msg);
+        }
+        return Log.v(LOG_TAG, msg);
     }
 
     /**
      * Send a {@link #VERBOSE} log message and log the exception.
-     * @param tag Used to identify the source of a log message.  It usually identifies
-     *        the class or activity where the log call occurs.
      * @param msg The message you would like logged.
      * @param tr An exception to log
      */
-    public static int v(String tag, String msg, Throwable tr) {
-        return Log.v(tag, msg, tr);
+    public int v(String msg, Throwable tr) {
+        if(config.isSaveLog && config.saveLevel <= VERBOSE) {
+            LogFileUtil.writeLog(LogFileUtil.VERBOSE, LOG_TAG, msg, tr);
+        }
+        return Log.v(LOG_TAG, msg, tr);
     }
 
     /**
      * Send a {@link #DEBUG} log message.
-     * @param tag Used to identify the source of a log message.  It usually identifies
-     *        the class or activity where the log call occurs.
      * @param msg The message you would like logged.
      */
-    public static int d(String tag, String msg) {
-        return Log.d(tag, msg);
+    public int d( String msg) {
+        if(config.isSaveLog && config.saveLevel <= DEBUG) {
+            LogFileUtil.writeLog(LogFileUtil.DEBUG, LOG_TAG, msg);
+        }
+        return Log.d(LOG_TAG, msg);
     }
 
     /**
      * Send a {@link #DEBUG} log message and log the exception.
-     * @param tag Used to identify the source of a log message.  It usually identifies
-     *        the class or activity where the log call occurs.
      * @param msg The message you would like logged.
      * @param tr An exception to log
      */
-    public static int d(String tag, String msg, Throwable tr) {
-        return Log.d(tag, msg, tr);
+    public int d( String msg, Throwable tr) {
+        if(config.isSaveLog && config.saveLevel <= DEBUG) {
+            LogFileUtil.writeLog(LogFileUtil.DEBUG, LOG_TAG, msg, tr);
+        }
+        return Log.d(LOG_TAG, msg, tr);
     }
 
     /**
      * Send an {@link #INFO} log message.
-     * @param tag Used to identify the source of a log message.  It usually identifies
-     *        the class or activity where the log call occurs.
      * @param msg The message you would like logged.
      */
-    public static int i(String tag, String msg) {
-        return Log.i(tag, msg);
+    public int i(String msg) {
+        if(config.isSaveLog && config.saveLevel <= INFO) {
+            LogFileUtil.writeLog(LogFileUtil.INFO, LOG_TAG, msg);
+        }
+        return Log.i(LOG_TAG, msg);
     }
 
     /**
      * Send a {@link #INFO} log message and log the exception.
-     * @param tag Used to identify the source of a log message.  It usually identifies
-     *        the class or activity where the log call occurs.
      * @param msg The message you would like logged.
      * @param tr An exception to log
      */
-    public static int i(String tag, String msg, Throwable tr) {
-        return Log.i(tag, msg, tr);
+    public int i(String msg, Throwable tr) {
+        if(config.isSaveLog && config.saveLevel <= INFO) {
+            LogFileUtil.writeLog(LogFileUtil.INFO, LOG_TAG, msg, tr);
+        }
+        return Log.i(LOG_TAG, msg, tr);
     }
 
     /**
      * Send a {@link #WARN} log message.
-     * @param tag Used to identify the source of a log message.  It usually identifies
-     *        the class or activity where the log call occurs.
      * @param msg The message you would like logged.
      */
-    public static int w(String tag, String msg) {
-        return Log.w(tag, msg);
+    public int w(String msg) {
+        if(config.isSaveLog && config.saveLevel <= WARN) {
+            LogFileUtil.writeLog(LogFileUtil.WARN, LOG_TAG, msg);
+        }
+        return Log.w(LOG_TAG, msg);
     }
 
     /**
      * Send a {@link #WARN} log message and log the exception.
-     * @param tag Used to identify the source of a log message.  It usually identifies
-     *        the class or activity where the log call occurs.
      * @param msg The message you would like logged.
      * @param tr An exception to log
      */
-    public static int w(String tag, String msg, Throwable tr) {
-        return Log.w(tag, msg, tr);
+    public int w(String msg, Throwable tr) {
+        if(config.isSaveLog && config.saveLevel <= WARN) {
+            LogFileUtil.writeLog(LogFileUtil.WARN, LOG_TAG, msg, tr);
+        }
+        return Log.w(LOG_TAG, msg, tr);
     }
 
     /**
@@ -167,13 +200,12 @@ public final class SuperLog {
      *      'log.tag.&lt;YOUR_LOG_TAG>=&lt;LEVEL>'
      *  and place that in /data/local.prop.
      *
-     * @param tag The tag to check.
      * @param level The level to check.
      * @return Whether or not that this is allowed to be logged.
      * @throws IllegalArgumentException is thrown if the tag.length() > 23.
      */
-    public static boolean isLoggable(String tag, int level) {
-        return Log.isLoggable(tag, level);
+    public boolean isLoggable( int level) {
+        return Log.isLoggable(LOG_TAG, level);
     }
 
     /*
@@ -182,29 +214,34 @@ public final class SuperLog {
      *        the class or activity where the log call occurs.
      * @param tr An exception to log
      */
-    public static int w(String tag, Throwable tr) {
-        return Log.w(tag, tr);
+    public  int w( Throwable tr) {
+        if(config.isSaveLog && config.saveLevel <= WARN) {
+            LogFileUtil.writeLog(LogFileUtil.WARN, LOG_TAG, tr);
+        }
+        return Log.w(LOG_TAG, tr);
     }
 
     /**
      * Send an {@link #ERROR} log message.
-     * @param tag Used to identify the source of a log message.  It usually identifies
-     *        the class or activity where the log call occurs.
      * @param msg The message you would like logged.
      */
-    public static int e(String tag, String msg) {
-        return Log.e(tag, msg);
+    public int e( String msg) {
+        if(config.isSaveLog && config.saveLevel <= ERROR) {
+            LogFileUtil.writeLog(LogFileUtil.ERROR, LOG_TAG, msg);
+        }
+        return Log.e(LOG_TAG, msg);
     }
 
     /**
      * Send a {@link #ERROR} log message and log the exception.
-     * @param tag Used to identify the source of a log message.  It usually identifies
-     *        the class or activity where the log call occurs.
      * @param msg The message you would like logged.
      * @param tr An exception to log
      */
-    public static int e(String tag, String msg, Throwable tr) {
-        return Log.e(tag, msg, tr);
+    public int e( String msg, Throwable tr) {
+        if(config.isSaveLog && config.saveLevel <= ERROR) {
+            LogFileUtil.writeLog(LogFileUtil.ERROR, LOG_TAG, msg, tr);
+        }
+        return Log.e(LOG_TAG, msg, tr);
     }
 
     /**
@@ -213,32 +250,28 @@ public final class SuperLog {
      * Depending on system configuration, a report may be added to the
      * {@link android.os.DropBoxManager} and/or the process may be terminated
      * immediately with an error dialog.
-     * @param tag Used to identify the source of a log message.
      * @param msg The message you would like logged.
      */
-    public static int wtf(String tag, String msg) {
-        return Log.wtf(tag, msg);
+    public int wtf( String msg) {
+        return Log.wtf(LOG_TAG, msg);
     }
 
     /**
      * What a Terrible Failure: Report an exception that should never happen.
-     * Similar to {@link #wtf(String, String)}, with an exception to log.
-     * @param tag Used to identify the source of a log message.
      * @param tr An exception to log.
      */
-    public static int wtf(String tag, Throwable tr) {
-        return Log.wtf(tag, tr);
+    public int wtf( Throwable tr) {
+        return Log.wtf(LOG_TAG, tr);
     }
 
     /**
      * What a Terrible Failure: Report an exception that should never happen.
      * Similar to {@link #wtf(String, Throwable)}, with a message as well.
-     * @param tag Used to identify the source of a log message.
      * @param msg The message you would like logged.
      * @param tr An exception to log.  May be null.
      */
-    public static int wtf(String tag, String msg, Throwable tr) {
-        return Log.wtf(tag, msg, tr);
+    public int wtf( String msg, Throwable tr) {
+        return Log.wtf(LOG_TAG, msg, tr);
     }
 
     /**

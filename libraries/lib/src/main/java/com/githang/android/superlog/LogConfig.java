@@ -47,5 +47,7 @@ public class LogConfig {
      * Log file that will be send.
      */
     protected File sendFile;
+
+    public int saveLevel = SuperLog.DEBUG;
 }
 
