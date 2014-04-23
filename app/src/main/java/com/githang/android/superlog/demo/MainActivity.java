@@ -25,7 +25,6 @@ public class MainActivity extends Activity {
         }
         logConfig.logPath = file.getPath() ;
         logConfig.isSendEmail = true;
-        logConfig.sendEmail="log@msdx.pw";
         logConfig.receiveEmail="log@msdx.pw";
         logConfig.sendEmailUser="log@msdx.pw";
         logConfig.sendEmailPassword="********";

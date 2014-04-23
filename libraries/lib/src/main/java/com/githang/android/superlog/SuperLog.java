@@ -112,7 +112,7 @@ public final class SuperLog {
             }
         }
         if (logConfig.isSendEmail &&
-                (TextUtils.isEmpty(logConfig.sendEmail) ||
+                (TextUtils.isEmpty(logConfig.sendEmailUser) ||
                         TextUtils.isEmpty(logConfig.sendEmailPassword) ||
                         TextUtils.isEmpty(logConfig.receiveEmail))) {
             throw new IllegalArgumentException("the isSendEmail is true, but send mail or send mail password, receive email is null");

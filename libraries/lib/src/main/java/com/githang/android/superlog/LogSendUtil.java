@@ -30,7 +30,7 @@ public class LogSendUtil {
             return;
         }
         LogConfig config = SuperLog.config;
-        LogSender sender = new LogSender(config.sendEmailUser, config.sendEmailPassword, config.sendEmail, config.receiveEmail, config.sendEmailHost, config.sendEmailPort, config.mailSubject, "");
+        LogSender sender = new LogSender(config.sendEmailUser, config.sendEmailPassword, config.receiveEmail, config.sendEmailHost, config.sendEmailPort, config.mailSubject, "");
         for (File log: logs) {
             sender.addAttachment(log.getPath(), log.getName());
         }
@@ -88,7 +88,7 @@ public class LogSendUtil {
     public static void sendCurrent() throws Exception {
         File log = LogFileUtil.getLogFile();
         LogConfig config = SuperLog.config;
-        LogSender sender = new LogSender(config.sendEmailUser, config.sendEmailPassword, config.sendEmail, config.receiveEmail, config.sendEmailHost, config.sendEmailPort, config.mailSubject, "");
+        LogSender sender = new LogSender(config.sendEmailUser, config.sendEmailPassword, config.receiveEmail, config.sendEmailHost, config.sendEmailPort, config.mailSubject, "");
         sender.addAttachment(log.getPath(), log.getName());
         sender.send();
     }

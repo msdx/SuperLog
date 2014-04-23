@@ -43,12 +43,12 @@ public class LogSender extends Authenticator {
     private Multipart multipart;
     private Properties props;
 
-    public LogSender(String user, String pass, String from, String to, String host, String port, String subject, String body) {
+    public LogSender(String user, String pass,  String to, String host, String port, String subject, String body) {
         this.host = host;
         this.port = port;
         this.user = user;
         this.pass = pass;
-        this.from = from;
+        this.from = user;
         this.to = to;
         this.subject = subject;
         this.body = body;
