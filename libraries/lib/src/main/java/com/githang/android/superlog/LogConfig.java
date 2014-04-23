@@ -16,10 +16,6 @@ public class LogConfig {
      */
     public String receiveEmail;
     /**
-     * E-mail address who send the log.
-     */
-    public String sendEmail;
-    /**
      * E-mail user
      */
     public String sendEmailUser;
