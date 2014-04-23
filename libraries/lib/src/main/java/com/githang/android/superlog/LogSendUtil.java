@@ -1,4 +1,5 @@
-package com.githang.android.superlog;/**
+package com.githang.android.superlog;
+/**
  * Created by msdx on 2014/4/22.
  */
 
@@ -17,7 +18,11 @@ import java.io.IOException;
 public class LogSendUtil {
     private static final String LOG_TAG = LogSendUtil.class.getSimpleName();
 
-    static void send() throws Exception {
+    /**
+     * 发送历史LOG。
+     * @throws Exception
+     */
+    static void sendHistory() throws Exception {
         File sendDir = sendReady();
         File[] logs = sendDir.listFiles();
         if(logs.length == 0) {
@@ -74,5 +79,17 @@ public class LogSendUtil {
         if(SuperLog.config.deleteFileAfterSend) {
             sendDir.deleteOnExit();
         }
+    }
+
+    /**
+     * 发送当前LOG。
+     * @throws Exception
+     */
+    public static void sendCurrent() throws Exception {
+        File log = LogFileUtil.getLogFile();
+        LogConfig config = SuperLog.config;
+        LogSender sender = new LogSender(config.sendEmailUser, config.sendEmailPassword, config.sendEmail, config.receiveEmail, config.sendEmailHost, config.sendEmailPort, config.mailSubject, "");
+        sender.addAttachment(log.getPath(), log.getName());
+        sender.send();
     }
 }
