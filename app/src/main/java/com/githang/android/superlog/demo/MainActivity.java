@@ -39,7 +39,9 @@ public class MainActivity extends Activity {
                 @Override
                 public void run() {
                     try {
-                        SuperLog.sendLog(MainActivity.this);
+                        Thread.sleep(1000);
+                        SuperLog.sendHistoryLog(MainActivity.this);
+                        SuperLog.sendCurrentLog(MainActivity.this);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -58,10 +60,10 @@ public class MainActivity extends Activity {
         }
         text.setText(sb.toString());
 
-//        SuperLog log = SuperLog.getLog(MainActivity.class);
+        SuperLog log = SuperLog.getLog(MainActivity.class);
 //        log.v("verbose log");
 //        log.v("verbose log, throwable", new Exception("verbose demo"));
-//        log.d("debug log");
+        log.d("debug log");
 //        log.d("debug log, throwable", new Exception("debug demo"));
 //        log.i("info log");
 //        log.i("info log, throwable", new Exception("info demo"));

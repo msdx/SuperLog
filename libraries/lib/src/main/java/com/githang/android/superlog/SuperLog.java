@@ -3,6 +3,7 @@ package com.githang.android.superlog;/**
  */
 
 import android.content.Context;
+import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -67,37 +68,50 @@ public final class SuperLog {
         config = new LogConfig();
     }
 
-    public static void sendLog(Context context) throws Exception {
-        if(!config.isSendEmail) {
+    public static void sendHistoryLog(Context context) throws Exception {
+        sendLog(context, true);
+    }
+
+    private static void sendLog (Context context, boolean history) throws Exception {
+        if (!config.isSendEmail) {
             return;
         }
-        if(config.mailSubject == null) {
-            config.mailSubject = "IRAINS LOG " + context.getApplicationInfo().name;
+        if (config.mailSubject == null) {
+            config.mailSubject = "IRAINS LOG " + context.getPackageManager().getApplicationLabel(context.getApplicationInfo()) + " " + Build.DEVICE;
         }
-        LogSendUtil.send();
+        if(history) {
+            LogSendUtil.sendHistory();
+        } else {
+            LogSendUtil.sendCurrent();
+        }
+    }
+
+    public static void sendCurrentLog(Context context) throws Exception {
+        sendLog(context, false);
     }
 
     /**
      * 设置配置。
+     *
      * @param logConfig
      */
     public static void setConfig(LogConfig logConfig) {
         config = logConfig;
-        if(logConfig.isSaveLog) {
+        if (logConfig.isSaveLog) {
             if (TextUtils.isEmpty(logConfig.logPath)) {
                 throw new IllegalArgumentException("isSaveLog is true, but logPath is null");
             }
             File path = new File(logConfig.logPath);
-            if(path.isFile()) {
+            if (path.isFile()) {
                 throw new IllegalArgumentException("the logPath is need to set as path, but it's a file");
             }
-            if(!path.canWrite()) {
-                localLog.e( "the log path is not writable");
+            if (!path.canWrite()) {
+                localLog.e("the log path is not writable");
             } else {
 
             }
         }
-        if(logConfig.isSendEmail &&
+        if (logConfig.isSendEmail &&
                 (TextUtils.isEmpty(logConfig.sendEmail) ||
                         TextUtils.isEmpty(logConfig.sendEmailPassword) ||
                         TextUtils.isEmpty(logConfig.receiveEmail))) {
@@ -108,10 +122,11 @@ public final class SuperLog {
 
     /**
      * Send a {@link #VERBOSE} log message.
+     *
      * @param msg The message you would like logged.
      */
-    public int v( String msg) {
-        if(config.isSaveLog && config.saveLevel <= VERBOSE) {
+    public int v(String msg) {
+        if (config.isSaveLog && config.saveLevel <= VERBOSE) {
             LogFileUtil.writeLog(LogFileUtil.VERBOSE, LOG_TAG, msg);
         }
         return Log.v(LOG_TAG, msg);
@@ -119,11 +134,12 @@ public final class SuperLog {
 
     /**
      * Send a {@link #VERBOSE} log message and log the exception.
+     *
      * @param msg The message you would like logged.
-     * @param tr An exception to log
+     * @param tr  An exception to log
      */
     public int v(String msg, Throwable tr) {
-        if(config.isSaveLog && config.saveLevel <= VERBOSE) {
+        if (config.isSaveLog && config.saveLevel <= VERBOSE) {
             LogFileUtil.writeLog(LogFileUtil.VERBOSE, LOG_TAG, msg, tr);
         }
         return Log.v(LOG_TAG, msg, tr);
@@ -131,10 +147,11 @@ public final class SuperLog {
 
     /**
      * Send a {@link #DEBUG} log message.
+     *
      * @param msg The message you would like logged.
      */
-    public int d( String msg) {
-        if(config.isSaveLog && config.saveLevel <= DEBUG) {
+    public int d(String msg) {
+        if (config.isSaveLog && config.saveLevel <= DEBUG) {
             LogFileUtil.writeLog(LogFileUtil.DEBUG, LOG_TAG, msg);
         }
         return Log.d(LOG_TAG, msg);
@@ -142,11 +159,12 @@ public final class SuperLog {
 
     /**
      * Send a {@link #DEBUG} log message and log the exception.
+     *
      * @param msg The message you would like logged.
-     * @param tr An exception to log
+     * @param tr  An exception to log
      */
-    public int d( String msg, Throwable tr) {
-        if(config.isSaveLog && config.saveLevel <= DEBUG) {
+    public int d(String msg, Throwable tr) {
+        if (config.isSaveLog && config.saveLevel <= DEBUG) {
             LogFileUtil.writeLog(LogFileUtil.DEBUG, LOG_TAG, msg, tr);
         }
         return Log.d(LOG_TAG, msg, tr);
@@ -154,10 +172,11 @@ public final class SuperLog {
 
     /**
      * Send an {@link #INFO} log message.
+     *
      * @param msg The message you would like logged.
      */
     public int i(String msg) {
-        if(config.isSaveLog && config.saveLevel <= INFO) {
+        if (config.isSaveLog && config.saveLevel <= INFO) {
             LogFileUtil.writeLog(LogFileUtil.INFO, LOG_TAG, msg);
         }
         return Log.i(LOG_TAG, msg);
@@ -165,11 +184,12 @@ public final class SuperLog {
 
     /**
      * Send a {@link #INFO} log message and log the exception.
+     *
      * @param msg The message you would like logged.
-     * @param tr An exception to log
+     * @param tr  An exception to log
      */
     public int i(String msg, Throwable tr) {
-        if(config.isSaveLog && config.saveLevel <= INFO) {
+        if (config.isSaveLog && config.saveLevel <= INFO) {
             LogFileUtil.writeLog(LogFileUtil.INFO, LOG_TAG, msg, tr);
         }
         return Log.i(LOG_TAG, msg, tr);
@@ -177,10 +197,11 @@ public final class SuperLog {
 
     /**
      * Send a {@link #WARN} log message.
+     *
      * @param msg The message you would like logged.
      */
     public int w(String msg) {
-        if(config.isSaveLog && config.saveLevel <= WARN) {
+        if (config.isSaveLog && config.saveLevel <= WARN) {
             LogFileUtil.writeLog(LogFileUtil.WARN, LOG_TAG, msg);
         }
         return Log.w(LOG_TAG, msg);
@@ -188,11 +209,12 @@ public final class SuperLog {
 
     /**
      * Send a {@link #WARN} log message and log the exception.
+     *
      * @param msg The message you would like logged.
-     * @param tr An exception to log
+     * @param tr  An exception to log
      */
     public int w(String msg, Throwable tr) {
-        if(config.isSaveLog && config.saveLevel <= WARN) {
+        if (config.isSaveLog && config.saveLevel <= WARN) {
             LogFileUtil.writeLog(LogFileUtil.WARN, LOG_TAG, msg, tr);
         }
         return Log.w(LOG_TAG, msg, tr);
@@ -200,22 +222,22 @@ public final class SuperLog {
 
     /**
      * Checks to see whether or not a log for the specified tag is loggable at the specified level.
-     *
-     *  The default level of any tag is set to INFO. This means that any level above and including
-     *  INFO will be logged. Before you make any calls to a logging method you should check to see
-     *  if your tag should be logged. You can change the default level by setting a system property:
-     *      'setprop log.tag.&lt;YOUR_LOG_TAG> &lt;LEVEL>'
-     *  Where level is either VERBOSE, DEBUG, INFO, WARN, ERROR, ASSERT, or SUPPRESS. SUPPRESS will
-     *  turn off all logging for your tag. You can also create a local.prop file that with the
-     *  following in it:
-     *      'log.tag.&lt;YOUR_LOG_TAG>=&lt;LEVEL>'
-     *  and place that in /data/local.prop.
+     * <p/>
+     * The default level of any tag is set to INFO. This means that any level above and including
+     * INFO will be logged. Before you make any calls to a logging method you should check to see
+     * if your tag should be logged. You can change the default level by setting a system property:
+     * 'setprop log.tag.&lt;YOUR_LOG_TAG> &lt;LEVEL>'
+     * Where level is either VERBOSE, DEBUG, INFO, WARN, ERROR, ASSERT, or SUPPRESS. SUPPRESS will
+     * turn off all logging for your tag. You can also create a local.prop file that with the
+     * following in it:
+     * 'log.tag.&lt;YOUR_LOG_TAG>=&lt;LEVEL>'
+     * and place that in /data/local.prop.
      *
      * @param level The level to check.
      * @return Whether or not that this is allowed to be logged.
      * @throws IllegalArgumentException is thrown if the tag.length() > 23.
      */
-    public boolean isLoggable( int level) {
+    public boolean isLoggable(int level) {
         return Log.isLoggable(LOG_TAG, level);
     }
 
@@ -225,8 +247,8 @@ public final class SuperLog {
      *        the class or activity where the log call occurs.
      * @param tr An exception to log
      */
-    public  int w( Throwable tr) {
-        if(config.isSaveLog && config.saveLevel <= WARN) {
+    public int w(Throwable tr) {
+        if (config.isSaveLog && config.saveLevel <= WARN) {
             LogFileUtil.writeLog(LogFileUtil.WARN, LOG_TAG, tr);
         }
         return Log.w(LOG_TAG, tr);
@@ -234,10 +256,11 @@ public final class SuperLog {
 
     /**
      * Send an {@link #ERROR} log message.
+     *
      * @param msg The message you would like logged.
      */
-    public int e( String msg) {
-        if(config.isSaveLog && config.saveLevel <= ERROR) {
+    public int e(String msg) {
+        if (config.isSaveLog && config.saveLevel <= ERROR) {
             LogFileUtil.writeLog(LogFileUtil.ERROR, LOG_TAG, msg);
         }
         return Log.e(LOG_TAG, msg);
@@ -245,11 +268,12 @@ public final class SuperLog {
 
     /**
      * Send a {@link #ERROR} log message and log the exception.
+     *
      * @param msg The message you would like logged.
-     * @param tr An exception to log
+     * @param tr  An exception to log
      */
-    public int e( String msg, Throwable tr) {
-        if(config.isSaveLog && config.saveLevel <= ERROR) {
+    public int e(String msg, Throwable tr) {
+        if (config.isSaveLog && config.saveLevel <= ERROR) {
             LogFileUtil.writeLog(LogFileUtil.ERROR, LOG_TAG, msg, tr);
         }
         return Log.e(LOG_TAG, msg, tr);
@@ -257,6 +281,7 @@ public final class SuperLog {
 
     /**
      * Handy function to get a loggable stack trace from a Throwable
+     *
      * @param tr An exception to log
      */
     public static String getStackTraceString(Throwable tr) {
