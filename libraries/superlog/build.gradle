@@ -25,3 +25,23 @@ dependencies {
     compile 'com.android.support:appcompat-v7:19.+'
     compile fileTree(dir: 'libs', include: ['*.jar'])
 }
+
+sourceSets {
+    main {
+        java {
+            srcDir 'src/main/java'
+        }
+    }
+}
+task releaseLib(type: Copy) {
+    into "../../release"
+    from 'libs'
+    from 'build/libs'
+}
+
+task publicJar(overwrite: true) << {
+    copy {
+        from 'build/classes/release'
+        into "../../release/"
+    }
+}

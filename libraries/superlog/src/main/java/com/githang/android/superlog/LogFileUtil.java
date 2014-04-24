@@ -152,7 +152,6 @@ public class LogFileUtil {
     private static final void openFileHandler(File logFile) {
         if(instance.fileWriter == null ) {
             try {
-                Log.d(LOG_TAG, "open fileWriter");
                 instance.fileWriter = new FileWriter(logFile, true);
             } catch (IOException e) {
                 e.printStackTrace();
