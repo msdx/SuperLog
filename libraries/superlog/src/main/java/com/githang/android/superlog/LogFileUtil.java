@@ -34,10 +34,10 @@ public class LogFileUtil {
 
     private static final LogFileUtil instance =  new LogFileUtil();
     private FileWriter fileWriter;
-    private BufferedWriter bufferedWriter;
+    private BufferedWriter bufdWriter;
     private PrintWriter printWriter;
-    private String lastLogDate;
-    private File lastLogFile;
+    private String lastDate;
+    private File lastFile;
 
     private LogFileUtil(){}
 
@@ -49,12 +49,12 @@ public class LogFileUtil {
      */
     static synchronized void writeLog(char level, String tag, String message) {
         writeLogReady();
-        if(instance.lastLogFile != null) {
+        if(instance.lastFile != null) {
             String time = timeFormat.format(Calendar.getInstance().getTime());
             synchronized (lock) {
                 try {
-                    instance.bufferedWriter.append(time).append("    ").append(level).append('/').append(tag).append(" ").append(message).append('\n');
-                    instance.bufferedWriter.flush();
+                    instance.bufdWriter.append(time).append("    ").append(level).append('/').append(tag).append(" ").append(message).append('\n');
+                    instance.bufdWriter.flush();
                 } catch (IOException e) {
                     closeFileHandler();
                     Log.e(LOG_TAG, e.getMessage(), e);
@@ -72,12 +72,12 @@ public class LogFileUtil {
      */
     static synchronized void writeLog(char level, String tag, String message, Throwable tr) {
         writeLogReady();
-        if(instance.lastLogFile != null) {
+        if(instance.lastFile != null) {
             String time = timeFormat.format(Calendar.getInstance().getTime());
             synchronized (lock) {
                 try {
-                    instance.bufferedWriter.append(time).append("    ").append(level).append('/').append(tag).append(" ").append(message).append('\n');
-                    instance.bufferedWriter.flush();
+                    instance.bufdWriter.append(time).append("    ").append(level).append('/').append(tag).append(" ").append(message).append('\n');
+                    instance.bufdWriter.flush();
                     tr.printStackTrace(instance.printWriter);
                     instance.printWriter.flush();
                     instance.fileWriter.flush();
@@ -91,12 +91,12 @@ public class LogFileUtil {
 
     static synchronized void writeLog(char level, String tag, Throwable tr) {
         writeLogReady();
-        if(instance.lastLogFile != null) {
+        if(instance.lastFile != null) {
             String time = timeFormat.format(Calendar.getInstance().getTime());
             synchronized (lock) {
                 try {
-                    instance.bufferedWriter.append(time).append("    ").append(level).append('/').append(tag).append(":");
-                    instance.bufferedWriter.flush();
+                    instance.bufdWriter.append(time).append("    ").append(level).append('/').append(tag).append(":");
+                    instance.bufdWriter.flush();
                     tr.printStackTrace(instance.printWriter);
                     instance.printWriter.flush();
                     instance.fileWriter.flush();
@@ -125,14 +125,14 @@ public class LogFileUtil {
         String currentDate = logFileFormat.format(Calendar.getInstance().getTime());
 
         // 如果要保存的文件的名字一样
-        if(currentDate.equals(instance.lastLogDate) && instance.lastLogFile != null) {
-            return instance.lastLogFile;
+        if(currentDate.equals(instance.lastDate) && instance.lastFile != null) {
+            return instance.lastFile;
         }
 
         // 如果要保存的文件名字与上次的不一样，则重新创建
         File logFile = new File(logDir, "super-" + currentDate + ".log");
-        instance.lastLogFile = logFile;
-        instance.lastLogDate = currentDate;
+        instance.lastFile = logFile;
+        instance.lastDate = currentDate;
         if (!logFile.exists()) {
             synchronized (lock) {
                 if (!logDir.exists()) {
@@ -152,14 +152,13 @@ public class LogFileUtil {
     private static final void openFileHandler(File logFile) {
         if(instance.fileWriter == null ) {
             try {
-                Log.d(LOG_TAG, "open fileWriter");
                 instance.fileWriter = new FileWriter(logFile, true);
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-        if(instance.bufferedWriter == null) {
-            instance.bufferedWriter = new BufferedWriter(instance.fileWriter);
+        if(instance.bufdWriter == null) {
+            instance.bufdWriter = new BufferedWriter(instance.fileWriter);
         }
         if(instance.printWriter == null) {
             instance.printWriter = new PrintWriter(instance.fileWriter);
@@ -176,13 +175,13 @@ public class LogFileUtil {
                 instance.fileWriter = null;
             }
         }
-        if(instance.bufferedWriter != null) {
+        if(instance.bufdWriter != null) {
             try {
-                instance.bufferedWriter.close();
+                instance.bufdWriter.close();
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
-                instance.bufferedWriter = null;
+                instance.bufdWriter = null;
             }
         }
         if (instance.printWriter != null) {

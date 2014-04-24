@@ -22,7 +22,7 @@ android {
 }
 
 dependencies {
-    compile project(':libraries:lib')
+    compile project(':libraries:superlog')
 
     compile 'com.android.support:appcompat-v7:19.+'
     compile fileTree(dir: 'libs', include: ['*.jar'])
