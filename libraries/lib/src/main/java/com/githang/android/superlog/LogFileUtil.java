@@ -32,6 +32,15 @@ public class LogFileUtil {
     private static final SimpleDateFormat logFileFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
     private static final SimpleDateFormat timeFormat = new SimpleDateFormat("MM-dd HH:mm:ss.SSS", Locale.getDefault());
 
+    private static final LogFileUtil instance =  new LogFileUtil();
+    private FileWriter fileWriter;
+    private BufferedWriter bufferedWriter;
+    private PrintWriter printWriter;
+    private String lastLogDate;
+    private File lastLogFile;
+
+    private LogFileUtil(){}
+
     /**
      * 将日志写入文件
      * @param level
@@ -39,18 +48,15 @@ public class LogFileUtil {
      * @param message
      */
     static synchronized void writeLog(char level, String tag, String message) {
-        File logFile = getLogFile();
-        if (logFile != null) {
+        writeLogReady();
+        if(instance.lastLogFile != null) {
             String time = timeFormat.format(Calendar.getInstance().getTime());
             synchronized (lock) {
                 try {
-                    FileWriter fw = new FileWriter(logFile, true);
-                    BufferedWriter bw = new BufferedWriter(fw);
-                    bw.append(time).append("    ").append(level).append('/').append(tag).append(" ").append(message).append('\n');
-                    bw.flush();
-                    bw.close();
-                    fw.close();
+                    instance.bufferedWriter.append(time).append("    ").append(level).append('/').append(tag).append(" ").append(message).append('\n');
+                    instance.bufferedWriter.flush();
                 } catch (IOException e) {
+                    closeFileHandler();
                     Log.e(LOG_TAG, e.getMessage(), e);
                 }
             }
@@ -65,47 +71,46 @@ public class LogFileUtil {
      * @param tr
      */
     static synchronized void writeLog(char level, String tag, String message, Throwable tr) {
-        File logFile = getLogFile();
-        if(logFile != null) {
+        writeLogReady();
+        if(instance.lastLogFile != null) {
             String time = timeFormat.format(Calendar.getInstance().getTime());
             synchronized (lock) {
                 try {
-                    FileWriter fw = new FileWriter(logFile, true);
-                    BufferedWriter bw = new BufferedWriter(fw);
-                    bw.append(time).append("    ").append(level).append('/').append(tag).append(" ").append(message).append('\n');
-                    bw.flush();
-                    PrintWriter pw = new PrintWriter(fw);
-                    tr.printStackTrace(pw);
-                    pw.flush();
-                    fw.flush();
-                    bw.close();
-                    pw.close();
-                    fw.close();
+                    instance.bufferedWriter.append(time).append("    ").append(level).append('/').append(tag).append(" ").append(message).append('\n');
+                    instance.bufferedWriter.flush();
+                    tr.printStackTrace(instance.printWriter);
+                    instance.printWriter.flush();
+                    instance.fileWriter.flush();
                 } catch (IOException e) {
                     Log.e(LOG_TAG, e.getMessage(), e);
+                    closeFileHandler();
                 }
             }
         }
     }
 
     static synchronized void writeLog(char level, String tag, Throwable tr) {
-        File logFile = getLogFile();
-        if(logFile != null) {
+        writeLogReady();
+        if(instance.lastLogFile != null) {
             String time = timeFormat.format(Calendar.getInstance().getTime());
             synchronized (lock) {
                 try {
-                    FileWriter fw = new FileWriter(logFile, true);
-                    PrintWriter pw = new PrintWriter(fw);
-                    tr.printStackTrace(pw);
-                    pw.flush();
-                    fw.flush();
-                    pw.close();
-                    fw.close();
+                    instance.bufferedWriter.append(time).append("    ").append(level).append('/').append(tag).append(":");
+                    instance.bufferedWriter.flush();
+                    tr.printStackTrace(instance.printWriter);
+                    instance.printWriter.flush();
+                    instance.fileWriter.flush();
                 } catch (IOException e) {
                     Log.e(LOG_TAG, e.getMessage(), e);
+                    closeFileHandler();
                 }
             }
         }
+    }
+
+    private static final void writeLogReady() {
+        File logFile = getLogFile();
+        openFileHandler(logFile);
     }
 
     /**
@@ -117,13 +122,23 @@ public class LogFileUtil {
         if (!logDir.exists()) {
             logDir.mkdirs();
         }
+        String currentDate = logFileFormat.format(Calendar.getInstance().getTime());
 
-        File logFile = new File(logDir, "super-" + logFileFormat.format(Calendar.getInstance().getTime()) + ".log");
+        // 如果要保存的文件的名字一样
+        if(currentDate.equals(instance.lastLogDate) && instance.lastLogFile != null) {
+            return instance.lastLogFile;
+        }
+
+        // 如果要保存的文件名字与上次的不一样，则重新创建
+        File logFile = new File(logDir, "super-" + currentDate + ".log");
+        instance.lastLogFile = logFile;
+        instance.lastLogDate = currentDate;
         if (!logFile.exists()) {
             synchronized (lock) {
                 if (!logDir.exists()) {
                     try {
                         logFile.createNewFile();
+                        closeFileHandler();
                     } catch (IOException e) {
                         Log.e(LOG_TAG, e.getMessage(), e);
                         return null;
@@ -132,5 +147,47 @@ public class LogFileUtil {
             }
         }
         return logFile;
+    }
+
+    private static final void openFileHandler(File logFile) {
+        if(instance.fileWriter == null ) {
+            try {
+                Log.d(LOG_TAG, "open fileWriter");
+                instance.fileWriter = new FileWriter(logFile, true);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        if(instance.bufferedWriter == null) {
+            instance.bufferedWriter = new BufferedWriter(instance.fileWriter);
+        }
+        if(instance.printWriter == null) {
+            instance.printWriter = new PrintWriter(instance.fileWriter);
+        }
+    }
+
+    private static final void closeFileHandler() {
+        if(instance.fileWriter != null) {
+            try {
+                instance.fileWriter.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                instance.fileWriter = null;
+            }
+        }
+        if(instance.bufferedWriter != null) {
+            try {
+                instance.bufferedWriter.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                instance.bufferedWriter = null;
+            }
+        }
+        if (instance.printWriter != null) {
+            instance.printWriter.close();
+            instance.printWriter = null;
+        }
     }
 }
