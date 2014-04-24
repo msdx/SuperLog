@@ -19,6 +19,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
     }
+
 }
 
 dependencies {
@@ -26,22 +27,30 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
 }
 
-sourceSets {
-    main {
-        java {
-            srcDir 'src/main/java'
-        }
-    }
+tasks.withType(Compile) {
+    options.encoding = "UTF-8"
 }
-task releaseLib(type: Copy) {
+
+task releaseJar(type: Copy) {
+    from('build/bundles/release')
+    into('build/libs/')
+    include('classes.jar')
+    rename('classes.jar', 'superlog.jar')
+}
+
+task releaseLib(type: Copy, dependsOn: releaseJar) {
     into "../../release"
     from 'libs'
     from 'build/libs'
 }
 
-task publicJar(overwrite: true) << {
-    copy {
-        from 'build/classes/release'
-        into "../../release/"
+android.libraryVariants.all { variant ->
+    def name = variant.buildType.name
+    if (name.equals(com.android.builder.BuilderConstants.DEBUG)) {
+        return; //Skip debug builds.
     }
+    def task = project.tasks.create "jar${name.capitalize()}", Jar
+    task.dependsOn variant.javaCompile
+    task.from variant.javaCompile.destinationDir
+    artifacts.add('archives', task)
 }
