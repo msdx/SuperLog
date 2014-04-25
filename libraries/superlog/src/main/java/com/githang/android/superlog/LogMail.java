@@ -30,7 +30,7 @@ import javax.mail.internet.MimeMultipart;
  * Time: 18:42
  * FIXME
  */
-public class LogSender extends Authenticator {
+public class LogMail extends Authenticator {
     private String host;
     private String port;
     private String user;
@@ -43,12 +43,12 @@ public class LogSender extends Authenticator {
     private Multipart multipart;
     private Properties props;
 
-    public LogSender(String user, String pass,  String to, String host, String port, String subject, String body) {
+    public LogMail(String user, String pass, String from, String to, String host, String port, String subject, String body) {
         this.host = host;
         this.port = port;
         this.user = user;
         this.pass = pass;
-        this.from = user;
+        this.from = from;
         this.to = to;
         this.subject = subject;
         this.body = body;

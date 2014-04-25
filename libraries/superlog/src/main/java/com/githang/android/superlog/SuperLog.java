@@ -79,6 +79,9 @@ public final class SuperLog {
         if (config.mailSubject == null) {
             config.mailSubject = "IRAINS LOG " + context.getPackageManager().getApplicationLabel(context.getApplicationInfo()) + " " + Build.DEVICE;
         }
+        if (config.mailBody == null) {
+            config.mailBody = LogMailBuilder.BodyBuilder.buildBody(context);
+        }
         if(history) {
             LogSendUtil.sendHistory();
         } else {
